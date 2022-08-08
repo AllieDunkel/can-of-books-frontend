@@ -30,11 +30,13 @@ class BestBooks extends React.Component {
   render() {
 
     console.log(this.state.books);
-    let books= this.state.books.map(book => (
-
-
-      
-    ))}
+    let books = this.state.books.map(book => (
+      <Card key={book._id}>
+        <Card.Title>book.title</Card.Title>
+        <Card.Text>book.description</Card.Text>
+        <Card.Checkbox value={book.available} readOnly='true'/>
+      </Card>
+    ));
 
     
 
@@ -45,6 +47,7 @@ class BestBooks extends React.Component {
         {this.state.books.length ? (
           <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
           <div class="carousel-inner">
+            {books}
           </div>
           <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
