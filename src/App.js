@@ -8,8 +8,23 @@ import {
   Routes,
   Route
 } from "react-router-dom";
+import axios from 'axios';
+
+let SERVER = process.env.REACT_APP_SERVER;
 
 class App extends React.Component {
+  constructor(props){
+    super(props);
+    this.state= {
+      books: []
+    }
+  
+  }
+
+  componentDidMount(){
+    this.getBooks();
+  }
+
   render() {
     return (
       <>
@@ -18,7 +33,7 @@ class App extends React.Component {
           <Routes>
             <Route 
               exact path="/"
-              element={<BestBooks />}
+              element={<BestBooks SERVER={SERVER} />}
             >
             </Route>
             {/* PLACEHOLDER: add a route with a path of '/about' that renders the `About` component */}
