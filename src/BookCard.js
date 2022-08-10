@@ -9,9 +9,6 @@ class BookCard extends React.Component {
         }
     }
 
-
-
-
     render() {
         let book = this.state.book;
         return (

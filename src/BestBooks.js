@@ -84,22 +84,35 @@ class BestBooks extends React.Component {
 
   updateBookSubmit = (event) => {
     event.preventDefault();
-    console.log()
+    console.log(this.state.bookToUpdate);
     let bookToSend = {
-      title: event.target.updateTitle.value || this.props.bookToUpdate.title,
-      description: event.target.updateDescription.value || this.props.bookToUpdate.description,
-      available: event.target.updateAvailable.checked || this.props.bookToUpdate.available
+      title: event.target.updateTitle.value || this.state.bookToUpdate.title,
+      description: event.target.updateDescription.value || this.state.bookToUpdate.description,
+      available: event.target.updateAvailable.checked,
+      _id: this.state.bookToUpdate._id,
+      __V: this.state.bookToUpdate.__v,
+
     }
 
     this.updateBook(bookToSend);
   }
 
-  updateBook = (book) => {
+  updateBook = async (book) => {
     try {
       let url = `${this.props.SERVER}/books/${book._id}`;
-      console.log(url);
+      let updatedBook = await axios.put(url, book);
+      console.log('upBook ',updatedBook);
+      console.log(this.state.books);
+      let updateBookArray = this.state.books.map(bookInList => bookInList._id === book._id ? updatedBook.data : bookInList);
+      console.log(updateBookArray);
+      this.handleOnHide();
+      this.setState({
+        books: []
+      });
+      this.componentDidMount();
+
     } catch (error) {
-      
+      console.error('ERR: ',error.response.data);
     }
   }
 
