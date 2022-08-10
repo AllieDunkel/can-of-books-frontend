@@ -44,10 +44,6 @@ class BestBooks extends React.Component {
     this.postBook(newBook);
   }
 
-  logStateBooks(){
-    console.log(this.state.books);
-  }
-
   postBook = async (newBookObject) => {
     try {
       let url = `${this.props.SERVER}/books`;
@@ -58,7 +54,6 @@ class BestBooks extends React.Component {
       this.setState({
         books: [...this.state.books, createdBook.data]
       })
-      this.logStateBooks();
     } catch (error) {
       console.log('ERR: ', error.response.data);
     }
