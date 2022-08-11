@@ -20,7 +20,12 @@ class App extends React.Component {
   
   }
 
-
+  updateStateBooks = (books) => {
+    console.log(this.state.books);
+    this.setState({
+      books: books
+    })
+  }
 
   render() {
     return (
@@ -30,7 +35,7 @@ class App extends React.Component {
           <Routes>
             <Route 
               exact path="/"
-              element={<BestBooks books={this.state.books} SERVER={SERVER} />}
+              element={<BestBooks updateStateBooks={this.updateStateBooks} books={this.state.books} SERVER={SERVER} />}
             >
             </Route>
             {/* PLACEHOLDER: add a route with a path of '/about' that renders the `About` component */}

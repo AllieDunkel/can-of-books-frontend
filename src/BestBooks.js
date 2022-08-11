@@ -1,7 +1,7 @@
 import React from 'react';
-import Card from 'react-bootstrap/Card';
 import axios from 'axios';
-import { Form, Button } from 'react-bootstrap';
+import BookCard from './BookCard';
+import { Form, Button, Container, Modal } from 'react-bootstrap';
 
 
 
@@ -9,7 +9,10 @@ class BestBooks extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      books: this.props.books
+      books: this.props.books,
+      showUpdateModal: false,
+      bookToUpdate: {},
+      checkBox: false
     }
   }
 
@@ -20,12 +23,24 @@ class BestBooks extends React.Component {
   /* TODO: Make a GET request to your API to fetch all the books from the database  */
 
 
+  handleOnShowModal = (book) => {
+    this.setState({
+      showUpdateModal: true,
+      bookToUpdate: book,
+      checkBox: book.available
+    })
+  }
+
+  handleOnHide = () => {
+    this.setState({
+      showUpdateModal: false
+    })
+  }
+
   getBooks = async () => {
-    console.log('we are right here!!!');
     try {
 
       let results = await axios.get(`${this.props.SERVER}/books`);
-      console.log(results)
       this.setState({
         books: results.data
       })
@@ -50,7 +65,7 @@ class BestBooks extends React.Component {
 
       let createdBook = await axios.post(url, newBookObject);
 
-      console.log('Book Added ',createdBook);
+      console.log('Book Added ', createdBook);
       this.setState({
         books: [...this.state.books, createdBook.data]
       })
@@ -59,14 +74,52 @@ class BestBooks extends React.Component {
     }
   }
 
+  toggleAvailable = (event) => {
+    console.log(event.target);
+    this.setState({
+      checkBox: !this.state.checkBox
+    }) 
+  }
+
+
+  updateBookSubmit = (event) => {
+    event.preventDefault();
+    console.log(this.state.bookToUpdate);
+    let bookToSend = {
+      title: event.target.updateTitle.value || this.state.bookToUpdate.title,
+      description: event.target.updateDescription.value || this.state.bookToUpdate.description,
+      available: event.target.updateAvailable.checked,
+      _id: this.state.bookToUpdate._id,
+      __V: this.state.bookToUpdate.__v,
+
+    }
+
+    this.updateBook(bookToSend);
+  }
+
+  updateBook = async (book) => {
+    try {
+      let url = `${this.props.SERVER}/books/${book._id}`;
+      let updatedBook = await axios.put(url, book);
+      console.log('upBook ',updatedBook);
+      console.log(this.state.books);
+      let updateBookArray = this.state.books.map(bookInList => bookInList._id === book._id ? updatedBook.data : bookInList);
+      console.log(updateBookArray);
+      this.handleOnHide();
+      this.setState({
+        books: []
+      });
+      this.componentDidMount();
+
+    } catch (error) {
+      console.error('ERR: ',error.response.data);
+    }
+  }
+
   render() {
 
     let books = this.state.books.map(book => (
-      <Card key={book._id}>
-        <Card.Title>{book.title}</Card.Title>
-        <Card.Text>{book.description}</Card.Text>
-        <Card.Text>{book.available ? 'Available' : 'Unavailable'}</Card.Text>
-      </Card>
+      <BookCard key={book._id} book={book} handleOnShowModal={this.handleOnShowModal} />
     ));
 
     let addForm =
@@ -77,7 +130,7 @@ class BestBooks extends React.Component {
         </Form.Group>
         <Form.Group controlId='description'>
           <Form.Label>Description</Form.Label>
-          <Form.Control type='text' />
+          <Form.Control type='text'/>
         </Form.Group>
         <Form.Group controlId='available'>
           <Form.Check type='checkbox' label='Available' />
@@ -87,7 +140,7 @@ class BestBooks extends React.Component {
 
 
     return (
-      <>
+      <Container>
         <h2>My Essential Lifelong Learning &amp; Formation Shelf</h2>
 
         {this.state.books.length ? (
@@ -105,7 +158,27 @@ class BestBooks extends React.Component {
             </div>
           </>
         )}
-      </>
+        {this.state.showUpdateModal ? <Modal show={this.state.showUpdateModal} onHide={this.handleOnHide}>
+          <Modal.Header closeButton>Update</Modal.Header>
+          <Form onSubmit={this.updateBookSubmit}>
+            <Form.Group controlId='updateTitle'>
+              <Form.Label>Book Title</Form.Label>
+              <Form.Control type='updateText' placeholder={this.state.bookToUpdate.title}/>
+            </Form.Group>
+            <Form.Group controlId='updateDescription'>
+              <Form.Label>Description</Form.Label>
+              <Form.Control type='text' placeholder={this.state.bookToUpdate.description}/>
+            </Form.Group>
+            <Form.Group controlId='updateAvailable'>
+              <Form.Check type='checkbox' label='Available'  checked={this.state.checkBox} onChange={this.toggleAvailable}/>
+            </Form.Group>
+            <Button type='submit'>Update Book</Button>
+          </Form>
+        </Modal>
+          : <></>
+        }
+
+      </Container>
     )
   }
 }
